@@ -115,3 +115,18 @@ RUN pip3 install --user launchable~=1.0
 
 RUN export PATH=$PATH:/usr/local/go/bin:/home/runner/go/bin && \
     go install sigs.k8s.io/kind@v0.32.0
+
+# --- Supply-chain SBOM tooling ---
+# witness: official release binary. A locally `go install`-ed witness (built with Go 1.26.4)
+# breaks the ptrace command-run tracer; the released binary traces correctly.
+RUN export PATH=$PATH:/usr/local/go/bin:/home/runner/go/bin && cd /tmp \
+    && curl -fsSLO https://github.com/in-toto/witness/releases/download/v0.11.0/witness_0.11.0_linux_${TARGETARCH}.tar.gz \
+    && curl -fsSLO https://github.com/in-toto/witness/releases/download/v0.11.0/witness_0.11.0_checksums.txt \
+    && grep "linux_${TARGETARCH}.tar.gz$" witness_0.11.0_checksums.txt | sha256sum -c - \
+    && tar -xzf witness_0.11.0_linux_${TARGETARCH}.tar.gz witness \
+    && install -m 0755 witness /home/runner/go/bin/witness \
+    && rm -f witness* \
+    && witness version
+# sbomit: no release yet; build from pinned commit (Go 1.26.4 build is fine, sbomit does not ptrace)
+RUN export PATH=$PATH:/usr/local/go/bin:/home/runner/go/bin && \
+    go install github.com/sbomit/sbomit@4dba97c4c88d
