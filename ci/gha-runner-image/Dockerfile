@@ -117,8 +117,6 @@ RUN export PATH=$PATH:/usr/local/go/bin:/home/runner/go/bin && \
     go install sigs.k8s.io/kind@v0.32.0
 
 # --- Supply-chain SBOM tooling ---
-# witness: official release binary. A locally `go install`-ed witness (built with Go 1.26.4)
-# breaks the ptrace command-run tracer; the released binary traces correctly.
 RUN export PATH=$PATH:/usr/local/go/bin:/home/runner/go/bin && cd /tmp \
     && curl -fsSLO https://github.com/in-toto/witness/releases/download/v0.11.0/witness_0.11.0_linux_${TARGETARCH}.tar.gz \
     && curl -fsSLO https://github.com/in-toto/witness/releases/download/v0.11.0/witness_0.11.0_checksums.txt \
